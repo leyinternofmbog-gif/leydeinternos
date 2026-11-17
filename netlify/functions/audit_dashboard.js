@@ -37,8 +37,7 @@ async function fetchRecords(token, proyecto = 'REDCap') {
     const res = await fetch(apiUrl, {
       method: 'POST',
       headers: {
-        'Content-Type':
-          'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: params.toString(),
       signal: controller.signal
@@ -195,11 +194,11 @@ exports.handler = async (event) => {
       await Promise.all([
         fetchRecords(
           process.env.REDCAP_TOKEN_ENCUESTA,
-          'Encuesta 1342'
+          'Encuestas'
         ),
         fetchRecords(
           process.env.REDCAP_TOKEN_MAESTRA,
-          'Base Maestra 1333'
+          'Maestra'
         )
       ]);
 
