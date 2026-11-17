@@ -23,60 +23,90 @@ async function fetchRecords(token, proyecto = 'REDCap') {
     exportCheckboxLabel: 'false'
   });
 
-  const controller = new AbortController();
+  const maxIntentos = 2;
 
-  const timeout = setTimeout(() => {
-    controller.abort();
-  }, 25000);
+  for (let intento = 1; intento <= maxIntentos; intento++) {
+    const controller = new AbortController();
 
-  try {
-    console.log(
-      `Iniciando consulta REDCap: ${proyecto}`
-    );
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 20000);
 
-    const res = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: params.toString(),
-      signal: controller.signal
-    });
-
-    if (!res.ok) {
-      throw new Error(
-        `REDCap ${proyecto}: HTTP ${res.status}`
+    try {
+      console.log(
+        `Consultando REDCap (${proyecto}), intento ${intento}`
       );
-    }
 
-    const data = await res.json();
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        body: params.toString(),
+        signal: controller.signal
+      });
 
-    if (!Array.isArray(data)) {
-      throw new Error(
-        `Respuesta REDCap inesperada en ${proyecto}`
+      if (!res.ok) {
+        const contentType =
+          res.headers.get('content-type') || '';
+
+        console.error('REDCap rechazó la solicitud', {
+          proyecto,
+          status: res.status,
+          contentType
+        });
+
+        throw new Error(
+          `REDCap ${proyecto}: HTTP ${res.status}`
+        );
+      }
+
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error(
+          `Respuesta REDCap inesperada en ${proyecto}`
+        );
+      }
+
+      console.log(
+        `REDCap ${proyecto}: ${data.length} registros recibidos`
       );
-    }
 
-    console.log(
-      `REDCap ${proyecto}: ${data.length} registros recibidos`
-    );
+      return data;
 
-    return data;
+    } catch (error) {
+      const codigo =
+        error.cause?.code || error.code || '';
 
-  } catch (error) {
-    console.error(
-      `Error de conexión REDCap (${proyecto})`,
-      {
+      console.error(`Error REDCap (${proyecto})`, {
+        intento,
         message: error.message,
         cause: error.cause?.message,
-        code: error.cause?.code
+        code: codigo
+      });
+
+      const esTransitorio =
+        codigo === 'ECONNRESET' ||
+        codigo === 'UND_ERR_CONNECT_TIMEOUT' ||
+        error.name === 'AbortError';
+
+      if (!esTransitorio || intento === maxIntentos) {
+        throw error;
       }
-    );
 
-    throw error;
+      console.log(
+        `Reintentando conexión REDCap (${proyecto})`
+      );
 
-  } finally {
-    clearTimeout(timeout);
+      await new Promise(resolve =>
+        setTimeout(resolve, 1000 * intento)
+      );
+
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 }
 
@@ -190,17 +220,17 @@ exports.handler = async (event) => {
     // CONSULTAR PROYECTOS REDCAP
     // ======================================
 
-    const [encuestas, maestra] =
-      await Promise.all([
-        fetchRecords(
-          process.env.REDCAP_TOKEN_ENCUESTA,
-          'Encuestas'
-        ),
-        fetchRecords(
-          process.env.REDCAP_TOKEN_MAESTRA,
-          'Maestra'
-        )
-      ]);
+    // Primero consultar Encuestas
+    const encuestas = await fetchRecords(
+      process.env.REDCAP_TOKEN_ENCUESTA,
+      'Encuestas'
+    );
+
+    // Después consultar Base Maestra
+    const maestra = await fetchRecords(
+      process.env.REDCAP_TOKEN_MAESTRA,
+      'Maestra'
+    );
 
     console.log(
       'Consultas REDCap completadas'
