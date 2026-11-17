@@ -1,0 +1,1 @@
+import React from "react";export function Alert({children,className=""}:React.PropsWithChildren<{tone?:string,className?:string}>){return <div className={className} style={{padding:12,background:"#ffe9e9",color:"#a22"}}>{children}</div>}

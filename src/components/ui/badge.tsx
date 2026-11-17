@@ -1,0 +1,1 @@
+import React from "react";export function Badge({children,tone}:React.PropsWithChildren<{tone?:string}>){return <span style={{padding:"4px 8px",background:tone==="success"?"#e5f1e5":"#eee",borderRadius:4}}>{children}</span>}

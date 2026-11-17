@@ -1,0 +1,1 @@
+export function PageHeader({title,description}:{title:string,description:string}){return <header style={{padding:24,background:"#fff",borderBottom:"3px solid #94b43b"}}><h1>{title}</h1><p>{description}</p></header>}
