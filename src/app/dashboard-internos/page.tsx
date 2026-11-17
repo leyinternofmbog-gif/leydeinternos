@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { IBM_Plex_Sans } from "next/font/google";
 import {
   Search,
   AlertTriangle,
@@ -24,12 +23,6 @@ import {
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-
-const fuente = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
 
 // ==========================================
 // TIPOS DE DATOS
@@ -590,9 +583,9 @@ export default function DashboardInternosPage() {
   // ==========================================
 
   return (
-    <div className={`${fuente.className} min-h-screen bg-[#f3f5f2] text-gray-900 antialiased`}>
+    <div className="min-h-screen bg-[#f3f5f2] font-sans text-gray-900 antialiased">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-[#466b3f] text-white">
@@ -788,12 +781,12 @@ export default function DashboardInternosPage() {
                   aria-hidden
                 />
                 <input
-                  type="search"
+                  type="text"
                   placeholder="Buscar por nombre o documento"
                   aria-label="Buscar por nombre o documento"
                   value={filtros.busqueda}
                   onChange={(e) => actualizarFiltro("busqueda", e.target.value)}
-                  className={`${campo} pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden`}
+                  className={`${campo} pl-9 pr-9`}
                 />
                 {filtros.busqueda && (
                   <button
@@ -1115,7 +1108,7 @@ export default function DashboardInternosPage() {
                               abrirHistorial(est);
                             }}
                           >
-                            <History aria-hidden className="size-4" />
+                            <History aria-hidden className="h-4 w-4" />
                             Historial
                           </Button>
                         </td>
@@ -1179,7 +1172,7 @@ export default function DashboardInternosPage() {
                     type="button"
                     onClick={() => setPagina(n)}
                     aria-current={n === paginaActual ? "page" : undefined}
-                    className={`h-9 min-w-9 rounded-lg px-2 text-xs font-semibold tabular-nums ${foco} ${
+                    className={`h-9 min-w-[2.25rem] rounded-lg px-2 text-xs font-semibold tabular-nums ${foco} ${
                       n === paginaActual
                         ? "bg-[#466b3f] text-white"
                         : "text-gray-700 hover:bg-gray-100"
