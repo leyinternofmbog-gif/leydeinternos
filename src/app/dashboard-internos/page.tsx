@@ -949,10 +949,10 @@ export default function DashboardInternosPage() {
 
         {/* TABLA */}
         <Card>
-          <CardHeader
-            title="Planillas por estudiante"
-            description={`${filtrados.length} de ${estudiantes.length} estudiantes`}
-          />
+          <CardHeader title="Planillas por estudiante" />
+          <p className="px-5 pb-3 text-xs text-gray-500">
+            {`${filtrados.length} de ${estudiantes.length} estudiantes`}
+          </p>
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
