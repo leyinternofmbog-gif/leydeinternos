@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   AlertTriangle,
@@ -362,6 +363,8 @@ function Skeleton() {
 // ==========================================
 
 export default function DashboardInternosPage() {
+  const router = useRouter();
+  const [sesionVerificada, setSesionVerificada] = useState(false);
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -408,9 +411,8 @@ export default function DashboardInternosPage() {
       const token = localStorage.getItem("unal_token") || "";
 
       if (!token) {
-        throw new Error(
-          "No se encontró una sesión activa. Inicia sesión nuevamente."
-        );
+        router.replace("/login-otp");
+        return;
       }
 
       const respuesta = await fetch("/.netlify/functions/audit_dashboard", {
@@ -419,12 +421,20 @@ export default function DashboardInternosPage() {
         cache: "no-store",
       });
 
+      if (respuesta.status === 401 || respuesta.status === 403) {
+        localStorage.removeItem("unal_token");
+        setSesionVerificada(false);
+        router.replace("/login-otp");
+        return;
+      }
+
       const data: RespuestaAuditoria = await respuesta.json();
 
       if (!respuesta.ok) {
         throw new Error(data.error || "No fue posible consultar REDCap.");
       }
 
+      setSesionVerificada(true);
       setEstudiantes(Array.isArray(data.estudiantes) ? data.estudiantes : []);
       setAvisos(Array.isArray(data.avisos) ? data.avisos : []);
       setUltimaActualizacion(new Date());
@@ -581,6 +591,20 @@ export default function DashboardInternosPage() {
   // ==========================================
   // RENDERIZADO
   // ==========================================
+
+  // No se renderizan datos antes de que el backend acepte el token.
+  if (!sesionVerificada) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
+        <p className="text-gray-700">{error || "Verificando sesión institucional..."}</p>
+        {error && (
+          <button type="button" onClick={cargarDatos} className="rounded-md bg-[#466b3f] px-4 py-2 font-semibold text-white">
+            Reintentar
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f3f5f2] font-sans text-gray-900 antialiased">
