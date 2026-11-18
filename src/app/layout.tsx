@@ -57,9 +57,12 @@ export default function RootLayout({
         </UnalHeader>
 
         {/* Contenido principal */}
-        <main id="contenido" className="flex-1">
-          {children}
-        </main>
+       <main
+  id="contenido"
+  className="relative z-0 flex-1 pt-6"
+>
+  {children}
+</main>
 
         {/* Pie de página institucional */}
         <UnalFooter />
