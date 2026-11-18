@@ -15,3 +15,26 @@ button {
 .text-unal-red {
   color: #ae2730;
 }
+
+/* Separación del encabezado institucional */
+.header-institucional {
+  position: relative;
+  z-index: 20;
+}
+
+/* Encabezado del aplicativo */
+.header-aplicativo {
+  position: relative;
+  z-index: 10;
+  margin-top: 16px;
+  padding: 16px 24px;
+}
+
+/* Evitar superposición de botones */
+.header-aplicativo .acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
